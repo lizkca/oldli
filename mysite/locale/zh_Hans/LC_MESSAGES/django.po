@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-22 20:05+0800\n"
+"POT-Creation-Date: 2025-04-22 12:50+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,12 +19,12 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 #: homepage/templates/homepage/index.html:8
 msgid "Welcome"
-msgstr "欢迎"
+msgstr ""
 
 #: homepage/templates/homepage/index.html:27
 msgid "Welcome to My Website"
-msgstr "欢迎访问我的网站"
+msgstr ""
 
 #: homepage/templates/homepage/index.html:28
 msgid "This is a multilingual Django website."
-msgstr "这是一个支持多语言的Django网站"
+msgstr ""
