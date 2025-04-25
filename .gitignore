@@ -2,8 +2,11 @@
 staticfiles/
 
 # Python
+# Python 字节码文件
 *.pyc
 __pycache__/
+*.pyo
+*.pyd
 *.py[cod]
 *$py.class
 

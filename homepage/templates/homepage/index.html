@@ -28,6 +28,31 @@
         </form>
     </div>
     <h1>{% trans "Welcome to My Website" %}</h1>
-    <p>{% trans "This is a multilingual Django website." %}</p>
+    <p>{% trans "This is a website that help you learn language." %}</p>
+    
+    <div class="main-links">
+        <a href="{% url 'flashcards:study' %}" class="study-link">
+            {% trans "开始学习词汇" %}
+        </a>
+    </div>
+
+    <style>
+        .main-links {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .study-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        .study-link:hover {
+            background-color: #45a049;
+        }
+    </style>
 </body>
 </html>

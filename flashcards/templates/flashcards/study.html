@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="flashcard-container">
+    <div class="language-selector">
+        <a href="?lang=en" class="{% if request.GET.lang == 'en' %}active{% endif %}">
+            {% trans "学习英语" %}
+        </a>
+        <a href="?lang=zh" class="{% if request.GET.lang == 'zh' %}active{% endif %}">
+            {% trans "学习中文" %}
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-image">
+            <img src="{{ card.image.url }}" alt="{{ card.word }}">
+        </div>
+        
+        {% if card.pronunciation %}
+        <button onclick="playPronunciation('{{ card.pronunciation.url }}')" class="pronunciation-btn">
+            {% trans "播放发音" %}
+        </button>
+        {% endif %}
+        
+        <div class="translation">
+            {{ card.translation }}
+        </div>
+        
+        <form method="post" action="{% url 'flashcards:check_answer' card.id %}">
+            {% csrf_token %}
+            <input type="text" name="answer" placeholder="{% trans '请输入单词' %}" required>
+            <button type="submit">{% trans "检查" %}</button>
+        </form>
+        
+        {% if card.example %}
+        <div class="example">
+            <strong>{% trans "例句：" %}</strong>
+            {{ card.example }}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function playPronunciation(url) {
+    new Audio(url).play();
+}
+</script>
+{% endblock %}
