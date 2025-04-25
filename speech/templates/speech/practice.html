@@ -87,38 +87,98 @@ window.speechSynthesis.onvoiceschanged = function() {
 async function startRecording() {
     const recordBtn = document.getElementById('recordBtn');
     
-    if (recordBtn.textContent === '{% trans "开始录音" %}') {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
-        
-        mediaRecorder.ondataavailable = (event) => {
-            audioChunks.push(event.data);
-        };
-        
-        mediaRecorder.onstop = () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-            const audioUrl = URL.createObjectURL(audioBlob);
+    try {
+        // 检查浏览器是否支持 MediaRecorder
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('您的浏览器不支持录音功能。请使用最新版本的 Chrome、Firefox 或 Safari 浏览器。');
+        }
+
+        if (recordBtn.textContent === '{% trans "开始录音" %}') {
+            console.log('请求麦克风权限...');
+            // 请求麦克风权限
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    sampleRate: 44100
+                }
+            });
+            console.log('获得麦克风权限');
             
-            // 创建一个文件输入并添加到表单
-            const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(audioFile);
+            mediaRecorder = new MediaRecorder(stream);
             
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.name = 'audio';
-            fileInput.style.display = 'none';
-            fileInput.files = dataTransfer.files;
+            mediaRecorder.ondataavailable = (event) => {
+                console.log('录音数据可用');
+                audioChunks.push(event.data);
+            };
             
-            document.getElementById('speechForm').appendChild(fileInput);
-        };
+            mediaRecorder.onstop = () => {
+                console.log('录音停止，处理录音数据');
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                
+                // 创建音频预览容器（如果不存在）
+                let previewContainer = document.querySelector('.preview-container');
+                if (!previewContainer) {
+                    previewContainer = document.createElement('div');
+                    previewContainer.className = 'preview-container';
+                    document.querySelector('.practice-section').appendChild(previewContainer);
+                }
+                
+                // 清空之前的预览
+                previewContainer.innerHTML = '';
+                
+                // 创建音频预览
+                const audioPreview = document.createElement('audio');
+                audioPreview.src = audioUrl;
+                audioPreview.controls = true;
+                previewContainer.appendChild(audioPreview);
+                
+                // 创建一个文件输入并添加到表单
+                const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(audioFile);
+                
+                // 移除之前的文件输入（如果存在）
+                const oldFileInput = document.querySelector('input[name="audio"]');
+                if (oldFileInput) {
+                    oldFileInput.remove();
+                }
+                
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.name = 'audio';
+                fileInput.style.display = 'none';
+                fileInput.files = dataTransfer.files;
+                
+                document.getElementById('speechForm').appendChild(fileInput);
+            };
+            
+            mediaRecorder.onerror = (event) => {
+                console.error('录音错误:', event.error);
+                alert('录音过程中发生错误：' + event.error.message);
+            };
+            
+            audioChunks = [];
+            mediaRecorder.start();
+            console.log('开始录音');
+            recordBtn.textContent = '{% trans "停止录音" %}';
+            recordBtn.classList.add('recording');
+        } else {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                console.log('停止录音');
+                mediaRecorder.stop();
+                // 停止所有轨道
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+            recordBtn.textContent = '{% trans "开始录音" %}';
+            recordBtn.classList.remove('recording');
+        }
+    } catch (error) {
+        console.error('录音错误:', error);
+        alert('无法访问麦克风。请确保：\n1. 您已授予浏览器麦克风权限\n2. 您的设备有可用的麦克风\n3. 没有其他应用程序正在使用麦克风\n\n详细错误信息：' + error.message);
         
-        audioChunks = [];
-        mediaRecorder.start();
-        recordBtn.textContent = '{% trans "停止录音" %}';
-        recordBtn.classList.add('recording');
-    } else {
-        mediaRecorder.stop();
+        // 重置按钮状态
         recordBtn.textContent = '{% trans "开始录音" %}';
         recordBtn.classList.remove('recording');
     }
