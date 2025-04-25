@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+{% if user.is_authenticated %}
+    <div class="speech-container">
+        <h1>{% trans "语音练习" %}</h1>
+        
+        <div class="practice-section">
+            <form id="speechForm" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="input-group">
+                    <textarea name="text" id="textInput" placeholder="{% trans '请输入文本（支持中英文）' %}" required></textarea>
+                </div>
+                
+                <div class="language-selector">
+                    <label>
+                        <input type="radio" name="speechLang" value="en-US" checked> English
+                    </label>
+                    <label>
+                        <input type="radio" name="speechLang" value="zh-CN"> 中文
+                    </label>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" onclick="speak()" class="speak-btn">
+                        {% trans "朗读文本" %}
+                    </button>
+                    <button type="button" onclick="startRecording()" id="recordBtn" class="record-btn">
+                        {% trans "开始录音" %}
+                    </button>
+                    <button type="submit" class="submit-btn">
+                        {% trans "保存练习" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    <div class="records-section">
+        <h2>{% trans "练习记录" %}</h2>
+        {% for record in records %}
+        <div class="record-item">
+            <p>{{ record.text }}</p>
+            <div class="record-controls">
+                <button onclick="speak('{{ record.text }}')" class="play-btn">
+                    {% trans "播放原文" %}
+                </button>
+                {% if record.user_recording %}
+                <audio src="{{ record.user_recording.url }}" controls></audio>
+                {% endif %}
+            </div>
+            <small>{{ record.created_at|date:"Y-m-d H:i" }}</small>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+let mediaRecorder;
+let audioChunks = [];
+
+function speak(text) {
+    const textToSpeak = text || document.getElementById('textInput').value;
+    const utterance = new SpeechSynthesisUtterance(textToSpeak);
+    // 获取选中的语言
+    const selectedLang = document.querySelector('input[name="speechLang"]:checked').value;
+    utterance.lang = selectedLang;
+    
+    // 根据语言选择合适的语音
+    const voices = window.speechSynthesis.getVoices();
+    for (let voice of voices) {
+        if (voice.lang.startsWith(selectedLang)) {
+            utterance.voice = voice;
+            break;
+        }
+    }
+    
+    window.speechSynthesis.speak(utterance);
+}
+
+// 确保语音列表加载完成
+window.speechSynthesis.onvoiceschanged = function() {
+    const voices = window.speechSynthesis.getVoices();
+    console.log('可用的语音：', voices);
+};
+
+async function startRecording() {
+    const recordBtn = document.getElementById('recordBtn');
+    
+    if (recordBtn.textContent === '{% trans "开始录音" %}') {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        
+        mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
+        
+        mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            
+            // 创建一个文件输入并添加到表单
+            const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(audioFile);
+            
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.name = 'audio';
+            fileInput.style.display = 'none';
+            fileInput.files = dataTransfer.files;
+            
+            document.getElementById('speechForm').appendChild(fileInput);
+        };
+        
+        audioChunks = [];
+        mediaRecorder.start();
+        recordBtn.textContent = '{% trans "停止录音" %}';
+        recordBtn.classList.add('recording');
+    } else {
+        mediaRecorder.stop();
+        recordBtn.textContent = '{% trans "开始录音" %}';
+        recordBtn.classList.remove('recording');
+    }
+}
+</script>
+
+<style>
+.speech-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.practice-section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+}
+
+.input-group textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.button-group button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.speak-btn {
+    background: #4CAF50;
+    color: white;
+}
+
+.record-btn {
+    background: #f44336;
+    color: white;
+}
+
+.record-btn.recording {
+    background: #d32f2f;
+    animation: pulse 1s infinite;
+}
+
+.submit-btn {
+    background: #2196F3;
+    color: white;
+}
+
+.records-section {
+    margin-top: 30px;
+}
+
+.record-item {
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.record-controls {
+    margin: 10px 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.play-btn {
+    padding: 5px 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.language-selector {
+    margin: 15px 0;
+    text-align: center;
+}
+
+.language-selector label {
+    margin: 0 10px;
+    cursor: pointer;
+}
+
+.language-selector input[type="radio"] {
+    margin-right: 5px;
+}
+</style>
+{% endif %}
+{% endblock %}

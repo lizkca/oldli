@@ -34,24 +34,40 @@
         <a href="{% url 'flashcards:study' %}" class="study-link">
             {% trans "开始学习词汇" %}
         </a>
+        <a href="{% url 'speech:practice' %}" class="speech-link">
+            {% trans "口语练习" %}
+        </a>
     </div>
 
     <style>
         .main-links {
             margin-top: 20px;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
         }
-        .study-link {
-            display: inline-block;
-            padding: 10px 20px;
+        
+        .main-links a {
+            padding: 15px 30px;
             background-color: #4CAF50;
             color: white;
             text-decoration: none;
             border-radius: 5px;
             font-size: 18px;
+            transition: background-color 0.3s;
         }
-        .study-link:hover {
+        
+        .main-links a:hover {
             background-color: #45a049;
+        }
+        
+        .speech-link {
+            background-color: #2196F3 !important;
+        }
+        
+        .speech-link:hover {
+            background-color: #1976D2 !important;
         }
     </style>
 </body>
