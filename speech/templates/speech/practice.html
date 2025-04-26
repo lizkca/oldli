@@ -94,6 +94,11 @@ async function startRecording() {
         }
 
         if (recordBtn.textContent === '{% trans "开始录音" %}') {
+            console.log('开始录音流程...');
+            console.log('检查浏览器兼容性:', {
+                mediaDevices: !!navigator.mediaDevices,
+                getUserMedia: !!navigator.mediaDevices.getUserMedia
+            });
             console.log('请求麦克风权限...');
             // 请求麦克风权限
             const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -175,7 +180,11 @@ async function startRecording() {
             recordBtn.classList.remove('recording');
         }
     } catch (error) {
-        console.error('录音错误:', error);
+        console.error('录音错误详细信息:', {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+        });
         alert('无法访问麦克风。请确保：\n1. 您已授予浏览器麦克风权限\n2. 您的设备有可用的麦克风\n3. 没有其他应用程序正在使用麦克风\n\n详细错误信息：' + error.message);
         
         // 重置按钮状态
