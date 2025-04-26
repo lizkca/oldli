@@ -6,6 +6,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        /* 导航栏容器 */
+        .nav-container {
+            background-color: #333;
+            padding: 15px 20px;
+            width: 100%;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        /* 主导航链接 */
+        .main-nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .main-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .main-nav a:hover {
+            background-color: #555;
+        }
+
+        /* 认证导航样式 */
+        .auth-nav {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .auth-nav span {
+            color: white;
+            margin-right: 10px;
+        }
+
+        .auth-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .auth-nav a.login-btn {
+            background-color: #4CAF50;
+        }
+
+        .auth-nav a.register-btn {
+            background-color: #2196F3;
+        }
+
+        .auth-nav a.logout-btn {
+            background-color: #f44336;
+        }
+
+        .auth-nav a:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* 主要内容区域 */
+        #content {
+            margin-top: 70px; /* 为固定导航栏留出空间 */
+            padding: 20px;
+        }
         .flashcard-container {
             max-width: 800px;
             margin: 0 auto;
@@ -59,10 +141,101 @@
             background-color: #007bff;
             color: white;
         }
+        /* 导航栏容器 */
+        .nav-container {
+            background-color: #333;
+            padding: 15px 20px;
+            margin: -20px -20px 20px -20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 主导航链接 */
+        .main-nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        .main-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .main-nav a:hover {
+            background-color: #555;
+        }
+
+        /* 认证导航样式 */
+        .auth-nav {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .auth-nav span {
+            color: white;
+            margin-right: 10px;
+        }
+
+        .auth-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+
+        .auth-nav a.login-btn {
+            background-color: #4CAF50;
+        }
+
+        .auth-nav a.register-btn {
+            background-color: #2196F3;
+        }
+
+        .auth-nav a.logout-btn {
+            background-color: #f44336;
+        }
+
+        .auth-nav a:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
-    {% block content %}
-    {% endblock %}
+    <nav class="nav-container">
+        <div class="main-nav">
+            <a href="/">{% trans "首页" %}</a>
+            <a href="{% url 'flashcards:study' %}">{% trans "单词卡" %}</a>
+            <a href="{% url 'speech:practice' %}">{% trans "语音练习" %}</a>
+        </div>
+        <div class="auth-nav">
+            {% if user.is_authenticated %}
+                <span>{% trans "欢迎，" %}{{ user.username }}</span>
+                <a href="{% url 'accounts:logout' %}" class="logout-btn">{% trans "登出" %}</a>
+            {% else %}
+                <a href="{% url 'accounts:login' %}" class="login-btn">{% trans "登录" %}</a>
+                <a href="{% url 'accounts:register' %}" class="register-btn">{% trans "注册" %}</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div id="content">
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
 </body>
 </html>

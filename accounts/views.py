@@ -11,7 +11,7 @@ def register_view(request):
             user = form.save()
             login(request, user)
             messages.success(request, _('注册成功！'))
-            return redirect('home')
+            return redirect('homepage:index')  # 修改这行，从 'home' 改为 'homepage:index'
     else:
         form = UserCreationForm()
     return render(request, 'accounts/register.html', {'form': form})
@@ -23,7 +23,7 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, _('登录成功！'))
-            return redirect('home')
+            return redirect('homepage:index')  # 修改这行
     else:
         form = AuthenticationForm()
     return render(request, 'accounts/login.html', {'form': form})
@@ -31,4 +31,4 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     messages.info(request, _('您已成功登出。'))
-    return redirect('home')
+    return redirect('homepage:index')  # 修改这行
