@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'flashcards.apps.FlashcardsConfig',
     'speech.apps.SpeechConfig',  # 添加这行
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -65,7 +66,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'mysite', 'templates'),  # 添加这一行
+            os.path.join(BASE_DIR, 'templates'),  # Update this line
         ],
         'APP_DIRS': True,
         'OPTIONS': {
