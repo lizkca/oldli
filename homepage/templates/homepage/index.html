@@ -1,74 +1,90 @@
-{% load static %}
+{% extends 'base.html' %}
 {% load i18n %}
-<!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans "Welcome" %}</title>
-    <link rel="stylesheet" href="{% static 'homepage/style.css' %}">
-</head>
-<body>
-    <div class="language-switcher">
-        <form action="{% url 'set_language' %}" method="post">
-            {% csrf_token %}
-            <input name="next" type="hidden" value="{{ request.path }}">
-            <select name="language" onchange="this.form.submit()">
-                {% get_current_language as CURRENT_LANGUAGE %}
-                {% get_available_languages as LANGUAGES %}
-                {% for lang_code, lang_name in LANGUAGES %}
-                    <option value="{{ lang_code }}" {% if lang_code == CURRENT_LANGUAGE %}selected{% endif %}>
-                        {{ lang_name }}
-                    </option>
-                {% endfor %}
-            </select>
-            <noscript>
-                <input type="submit" value="Go">
-            </noscript>
-        </form>
-    </div>
-    <h1>{% trans "Welcome to My Website" %}</h1>
-    <p>{% trans "This is a website that help you learn language." %}</p>
-    
-    <div class="main-links">
-        <a href="{% url 'flashcards:study' %}" class="study-link">
-            {% trans "开始学习词汇" %}
-        </a>
-        <a href="{% url 'speech:practice' %}" class="speech-link">
-            {% trans "口语练习" %}
-        </a>
-    </div>
 
-    <style>
-        .main-links {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            align-items: center;
-        }
-        
-        .main-links a {
-            padding: 15px 30px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 18px;
-            transition: background-color 0.3s;
-        }
-        
-        .main-links a:hover {
-            background-color: #45a049;
-        }
-        
-        .speech-link {
-            background-color: #2196F3 !important;
-        }
-        
-        .speech-link:hover {
-            background-color: #1976D2 !important;
-        }
-    </style>
-</body>
-</html>
+{% block title %}{% trans "首页" %}{% endblock %}
+
+{% block content %}
+<div class="welcome-container">
+    {% if user.is_authenticated %}
+        <h1>{% trans "欢迎回来，" %}{{ user.username }}！</h1>
+        <p>{% trans "开始您今天的学习之旅吧！" %}</p>
+        <div class="action-buttons">
+            <a href="{% url 'flashcards:study' %}" class="btn primary-btn">{% trans "练习单词" %}</a>
+            <a href="{% url 'speech:practice' %}" class="btn secondary-btn">{% trans "语音练习" %}</a>
+        </div>
+    {% else %}
+        <h1>{% trans "欢迎来到英语学习平台" %}</h1>
+        <p>{% trans "请登录或注册以开始您的学习之旅" %}</p>
+        <div class="action-buttons">
+            <a href="{% url 'accounts:login' %}" class="btn login-btn">{% trans "登录" %}</a>
+            <a href="{% url 'accounts:register' %}" class="btn register-btn">{% trans "注册" %}</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .welcome-container {
+        text-align: center;
+        padding: 50px 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 2.5em;
+    }
+
+    p {
+        color: #666;
+        font-size: 1.2em;
+        margin-bottom: 30px;
+    }
+
+    .action-buttons {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 12px 30px;
+        font-size: 1.1em;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+        font-weight: bold;
+    }
+
+    .primary-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .secondary-btn {
+        background-color: #2196F3;
+        color: white;
+    }
+
+    .login-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .register-btn {
+        background-color: #2196F3;
+        color: white;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+</style>
+{% endblock %}
