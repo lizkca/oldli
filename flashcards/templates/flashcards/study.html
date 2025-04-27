@@ -2,6 +2,12 @@
 {% load i18n %}
 
 {% block content %}
+<div class="container">
+    <div class="action-buttons mb-4">
+        <a href="{% url 'flashcards:add_word' %}" class="btn btn-primary">
+            {% trans "添加新单词" %}
+        </a>
+    </div>
 <div class="flashcard-container">
     <div class="language-selector">
         <a href="?lang=en" class="{% if request.GET.lang == 'en' %}active{% endif %}">

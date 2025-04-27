@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q
+from .forms import FlashcardForm
+from django.contrib import messages
+from django.utils.translation import gettext as _
 from .models import Card, UserProgress
 import random
 
@@ -47,3 +49,17 @@ def check_answer(request, card_id):
             'is_correct': is_correct,
             'card': card
         })
+
+@login_required
+def add_word(request):
+    if request.method == 'POST':
+        form = FlashcardForm(request.POST)
+        if form.is_valid():
+            flashcard = form.save(commit=False)
+            flashcard.user = request.user
+            flashcard.save()
+            messages.success(request, _('新单词添加成功！'))
+            return redirect('flashcards:study')
+    else:
+        form = FlashcardForm()
+    return render(request, 'flashcards/add_word.html', {'form': form})

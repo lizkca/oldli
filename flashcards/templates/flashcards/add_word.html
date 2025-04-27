@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% trans "添加新单词" %}</h2>
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.english_word.id_for_label }}" class="form-label">{% trans "英文单词" %}</label>
+                    {{ form.english_word }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.chinese_translation.id_for_label }}" class="form-label">{% trans "中文翻译" %}</label>
+                    {{ form.chinese_translation }}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.example_sentence.id_for_label }}" class="form-label">{% trans "例句" %}</label>
+                    {{ form.example_sentence }}
+                </div>
+                <button type="submit" class="btn btn-primary">{% trans "添加" %}</button>
+                <a href="{% url 'flashcards:study' %}" class="btn btn-secondary">{% trans "返回" %}</a>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .container {
+        max-width: 800px;
+    }
+    .form-label {
+        font-weight: bold;
+    }
+    .card {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .btn {
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}
