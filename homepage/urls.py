@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
 
-app_name = 'homepage'  # 添加这行
+app_name = 'homepage'
 
 urlpatterns = [
     path('', views.index, name='index'),

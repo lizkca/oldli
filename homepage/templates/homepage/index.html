@@ -1,90 +1,58 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "首页" %}{% endblock %}
-
 {% block content %}
-<div class="welcome-container">
-    {% if user.is_authenticated %}
-        <h1>{% trans "欢迎回来，" %}{{ user.username }}！</h1>
-        <p>{% trans "开始您今天的学习之旅吧！" %}</p>
-        <div class="action-buttons">
-            <a href="{% url 'flashcards:study' %}" class="btn primary-btn">{% trans "练习单词" %}</a>
-            <a href="{% url 'speech:practice' %}" class="btn secondary-btn">{% trans "语音练习" %}</a>
+<div class="container mt-4">
+    <div class="jumbotron">
+        <h1 class="display-4">{% trans "欢迎来到英语学习平台" %}</h1>
+        <p class="lead">{% trans "这是一个帮助你提高英语水平的学习平台" %}</p>
+        <hr class="my-4">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{% trans "单词卡片" %}</h5>
+                        <p class="card-text">{% trans "通过互动式单词卡片学习英语单词" %}</p>
+                        <a href="{% url 'flashcards:study' %}" class="btn btn-primary">{% trans "开始学习" %}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{% trans "语音练习" %}</h5>
+                        <p class="card-text">{% trans "练习英语发音和口语" %}</p>
+                        <a href="{% url 'speech:practice' %}" class="btn btn-primary">{% trans "开始练习" %}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{% trans "反馈建议" %}</h5>
+                        <p class="card-text">{% trans "帮助我们改进平台" %}</p>
+                        <a href="{% url 'feedback:submit' %}" class="btn btn-primary">{% trans "提交反馈" %}</a>
+                    </div>
+                </div>
+            </div>
         </div>
-    {% else %}
-        <h1>{% trans "欢迎来到英语学习平台" %}</h1>
-        <p>{% trans "请登录或注册以开始您的学习之旅" %}</p>
-        <div class="action-buttons">
-            <a href="{% url 'accounts:login' %}" class="btn login-btn">{% trans "登录" %}</a>
-            <a href="{% url 'accounts:register' %}" class="btn register-btn">{% trans "注册" %}</a>
-        </div>
-    {% endif %}
+    </div>
 </div>
 
 <style>
-    .welcome-container {
-        text-align: center;
-        padding: 50px 20px;
-        max-width: 800px;
-        margin: 0 auto;
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-        color: #333;
-        margin-bottom: 20px;
-        font-size: 2.5em;
-    }
-
-    p {
-        color: #666;
-        font-size: 1.2em;
-        margin-bottom: 30px;
-    }
-
-    .action-buttons {
-        margin-top: 30px;
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-    }
-
-    .btn {
-        display: inline-block;
-        padding: 12px 30px;
-        font-size: 1.1em;
-        text-decoration: none;
-        border-radius: 5px;
-        transition: all 0.3s ease;
-        font-weight: bold;
-    }
-
-    .primary-btn {
-        background-color: #4CAF50;
-        color: white;
-    }
-
-    .secondary-btn {
-        background-color: #2196F3;
-        color: white;
-    }
-
-    .login-btn {
-        background-color: #4CAF50;
-        color: white;
-    }
-
-    .register-btn {
-        background-color: #2196F3;
-        color: white;
-    }
-
-    .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
+.jumbotron {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: .3rem;
+    margin-bottom: 2rem;
+}
+.card {
+    height: 100%;
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
 </style>
 {% endblock %}

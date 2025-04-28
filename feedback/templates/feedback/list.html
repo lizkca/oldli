@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "反馈列表" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">{% trans "用户反馈列表" %}</h2>
+    <div class="row">
+        {% for feedback in feedbacks %}
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ feedback.user.username }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ feedback.created_at|date:"Y-m-d H:i" }}</h6>
+                    <p class="card-text">{{ feedback.content }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge {% if feedback.is_resolved %}bg-success{% else %}bg-warning{% endif %}">
+                            {% if feedback.is_resolved %}
+                                {% trans "已处理" %}
+                            {% else %}
+                                {% trans "待处理" %}
+                            {% endif %}
+                        </span>
+                        {% if user.is_staff %}
+                        <form method="post" action="{% url 'feedback:toggle_resolved' feedback.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm {% if feedback.is_resolved %}btn-warning{% else %}btn-success{% endif %}">
+                                {% if feedback.is_resolved %}
+                                    {% trans "标记为未处理" %}
+                                {% else %}
+                                    {% trans "标记为已处理" %}
+                                {% endif %}
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                {% trans "暂无反馈" %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'flashcards.apps.FlashcardsConfig',
     'speech.apps.SpeechConfig',  # 添加这行
     'accounts',
+    'feedback',
 ]
 
 MIDDLEWARE = [
