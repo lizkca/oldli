@@ -29,6 +29,9 @@
                     <button type="button" onclick="startRecording()" id="recordBtn" class="record-btn">
                         {% trans "开始录音" %}
                     </button>
+                    <button type="button" id="downloadRecording" class="download-btn" disabled>
+                        {% trans "下载录音" %}
+                    </button>
                     <button type="submit" class="submit-btn">
                         {% trans "保存练习" %}
                     </button>
@@ -86,6 +89,7 @@ window.speechSynthesis.onvoiceschanged = function() {
 
 async function startRecording() {
     const recordBtn = document.getElementById('recordBtn');
+    const downloadBtn = document.getElementById('downloadRecording');
     
     try {
         // 检查浏览器是否支持 MediaRecorder
@@ -115,6 +119,8 @@ async function startRecording() {
             mediaRecorder.ondataavailable = (event) => {
                 console.log('录音数据可用');
                 audioChunks.push(event.data);
+                // 启用下载按钮
+                downloadBtn.disabled = false;
             };
             
             mediaRecorder.onstop = () => {
@@ -192,6 +198,52 @@ async function startRecording() {
         recordBtn.classList.remove('recording');
     }
 }
+
+// 添加下载功能
+document.getElementById('downloadRecording').addEventListener('click', function() {
+    if (audioChunks.length > 0) {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const url = URL.createObjectURL(audioBlob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'my_recording.wav';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+});
+
+// 删除不需要的代码
+// 删除全局的 mediaRecorder.ondataavailable
+// 删除 stopRecordingBtn 相关的代码
+
+document.getElementById('downloadRecording').addEventListener('click', function() {
+    if (recordedBlob) {
+        const url = URL.createObjectURL(recordedBlob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'my_recording.wav';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+});
+
+// 在停止录音时启用下载按钮
+stopRecordingBtn.addEventListener('click', function() {
+    mediaRecorder.stop();
+    recordBtn.disabled = false;
+    stopRecordingBtn.disabled = true;
+});
+
+// 在开始新录音时禁用下载按钮
+recordBtn.addEventListener('click', function() {
+    document.getElementById('downloadRecording').disabled = true;
+});
 </script>
 
 <style>
@@ -296,6 +348,16 @@ async function startRecording() {
 
 .language-selector input[type="radio"] {
     margin-right: 5px;
+}
+
+.download-btn {
+    background: #9C27B0;
+    color: white;
+}
+
+.download-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
 }
 </style>
 {% endif %}
