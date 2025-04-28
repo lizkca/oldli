@@ -2,6 +2,7 @@
 {% load i18n %}
 
 {% block content %}
+<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
 {% if user.is_authenticated %}
     <div class="speech-container">
         <h1>{% trans "语音练习" %}</h1>
@@ -29,9 +30,16 @@
                     <button type="button" onclick="startRecording()" id="recordBtn" class="record-btn">
                         {% trans "开始录音" %}
                     </button>
-                    <button type="button" id="downloadRecording" class="download-btn" disabled>
-                        {% trans "下载录音" %}
-                    </button>
+                    <div class="dropdown">
+                        <button type="button" id="downloadRecording" class="download-btn" disabled>
+                            {% trans "下载录音" %}
+                        </button>
+                        <div class="dropdown-content">
+                            <a href="#" onclick="downloadRecording('wav')">WAV</a>
+                            <a href="#" onclick="downloadRecording('mp3')">MP3</a>
+                            <a href="#" onclick="downloadRecording('ogg')">OGG</a>
+                        </div>
+                    </div>
                     <button type="submit" class="submit-btn">
                         {% trans "保存练习" %}
                     </button>
@@ -200,25 +208,106 @@ async function startRecording() {
 }
 
 // 添加下载功能
-document.getElementById('downloadRecording').addEventListener('click', function() {
+// 修改下载功能支持多种格式
+async function downloadRecording(format) {
     if (audioChunks.length > 0) {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        const url = URL.createObjectURL(audioBlob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = url;
-        a.download = 'my_recording.wav';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        let mimeType;
+        let fileName;
+        
+        switch(format) {
+            case 'mp3':
+                mimeType = 'audio/mpeg';
+                fileName = 'recording.mp3';
+                break;
+            case 'ogg':
+                mimeType = 'audio/ogg';
+                fileName = 'recording.ogg';
+                break;
+            default:
+                mimeType = 'audio/wav';
+                fileName = 'recording.wav';
+        }
+
+        try {
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            
+            if (format === 'wav') {
+                // WAV格式直接下载
+                const url = URL.createObjectURL(audioBlob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } else if (format === 'mp3') {
+                // 转换为MP3
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const arrayBuffer = await audioBlob.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                
+                // 获取音频数据
+                const channels = audioBuffer.numberOfChannels;
+                const sampleRate = audioBuffer.sampleRate;
+                const samples = audioBuffer.getChannelData(0);
+                
+                // 创建MP3编码器
+                const mp3encoder = new lamejs.Mp3Encoder(channels, sampleRate, 128);
+                const mp3Data = [];
+                
+                // 将音频数据转换为MP3格式
+                const sampleBlockSize = 1152; // 每个MP3帧的采样数
+                const numSamples = samples.length;
+                
+                for (let i = 0; i < numSamples; i += sampleBlockSize) {
+                    const sampleChunk = samples.subarray(i, i + sampleBlockSize);
+                    const mp3buf = mp3encoder.encodeBuffer(convertFloat32ToInt16(sampleChunk));
+                    if (mp3buf.length > 0) {
+                        mp3Data.push(mp3buf);
+                    }
+                }
+                
+                // 完成编码
+                const mp3buf = mp3encoder.flush();
+                if (mp3buf.length > 0) {
+                    mp3Data.push(mp3buf);
+                }
+                
+                // 创建MP3 Blob并下载
+                const mp3Blob = new Blob(mp3Data, { type: 'audio/mpeg' });
+                const url = URL.createObjectURL(mp3Blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } else {
+                // OGG格式
+                alert('暂不支持OGG格式，请选择WAV或MP3格式');
+            }
+        } catch (error) {
+            console.error('格式转换失败:', error);
+            alert('该格式转换失败，请尝试下载WAV格式\n错误信息：' + error.message);
+        }
     }
-});
+}
 
-// 删除不需要的代码
-// 删除全局的 mediaRecorder.ondataavailable
-// 删除 stopRecordingBtn 相关的代码
+// 添加辅助函数：将Float32Array转换为Int16Array
+function convertFloat32ToInt16(float32Array) {
+    const int16Array = new Int16Array(float32Array.length);
+    for (let i = 0; i < float32Array.length; i++) {
+        const s = Math.max(-1, Math.min(1, float32Array[i]));
+        int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    }
+    return int16Array;
+}
 
+// 删除原有的下载按钮事件监听器
 document.getElementById('downloadRecording').addEventListener('click', function() {
     if (recordedBlob) {
         const url = URL.createObjectURL(recordedBlob);
@@ -358,6 +447,10 @@ recordBtn.addEventListener('click', function() {
 .download-btn:disabled {
     background: #ccc;
     cursor: not-allowed;
+}
+
+.download-btn:disabled + .dropdown-content {
+    display: none !important;
 }
 </style>
 {% endif %}
