@@ -16,7 +16,7 @@ urlpatterns += i18n_patterns(
     path('', include('homepage.urls')),
     path('flashcards/', include('flashcards.urls', namespace='flashcards')),
     path('accounts/', include('accounts.urls')),
-    path('speech/', include('speech.urls', namespace='speech')),  # 添加这行
+    path('speech/', include('speech.urls', namespace='speech')),
     path('feedback/', include('feedback.urls')),
     prefix_default_language=True  # 修改为True，这样默认语言也会有前缀
 )
