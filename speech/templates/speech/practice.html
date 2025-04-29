@@ -414,23 +414,28 @@ async function startRecording() {
                 audioPreview.controls = true;
                 previewContainer.appendChild(audioPreview);
                 
-                // 创建一个文件输入并添加到表单
+                // 创建一个隐藏的文件输入并添加到表单
+                const formData = new FormData();
                 const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' });
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(audioFile);
                 
-                // 移除之前的文件输入（如果存在）
-                const oldFileInput = document.querySelector('input[name="audio"]');
-                if (oldFileInput) {
-                    oldFileInput.remove();
+                // 删除之前的录音文件输入（如果存在）
+                const oldInput = document.querySelector('input[name="user_recording"]');
+                if (oldInput) {
+                    oldInput.remove();
                 }
                 
+                // 创建新的文件输入
                 const fileInput = document.createElement('input');
                 fileInput.type = 'file';
-                fileInput.name = 'audio';
+                fileInput.name = 'user_recording';
                 fileInput.style.display = 'none';
+                
+                // 使用 DataTransfer 来设置文件
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(audioFile);
                 fileInput.files = dataTransfer.files;
                 
+                // 将文件输入添加到表单
                 document.getElementById('speechForm').appendChild(fileInput);
             };
             
