@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'speech.apps.SpeechConfig',  # 添加这行
     'accounts',
     'feedback',
+    'blog',
 ]
 
 MIDDLEWARE = [

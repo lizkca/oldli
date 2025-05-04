@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="blog-header">
+        <h1>{% trans "博客列表" %}</h1>
+        <a href="{% url 'blog:write' %}" class="new-blog-btn">
+            {% trans "写新博客" %}
+        </a>
+    </div>
+
+    <div class="blog-list">
+        {% if blogs %}
+            {% for blog in blogs %}
+            <div class="blog-item card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ blog.title }}</h5>
+                    <p class="card-text">{{ blog.content|truncatewords:50 }}</p>
+                    <div class="blog-meta">
+                        <span class="badge bg-info">{{ blog.get_language_display }}</span>
+                        <small class="text-muted">{{ blog.created_at|date:"Y-m-d H:i" }}</small>
+                        <small class="text-muted">{% trans "作者" %}: {{ blog.author.username }}</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">
+                {% trans "暂无博客内容" %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.blog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.new-blog-btn {
+    background: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.new-blog-btn:hover {
+    background: #45a049;
+    color: white;
+    text-decoration: none;
+}
+
+.blog-item {
+    transition: transform 0.2s;
+}
+
+.blog-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.blog-meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.badge {
+    padding: 5px 10px;
+}
+</style>
+{% endblock %}

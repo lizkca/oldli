@@ -29,9 +29,12 @@
             <div class="col-md-4 mb-3">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">{% trans "反馈建议" %}</h5>
-                        <p class="card-text">{% trans "帮助我们改进平台" %}</p>
-                        <a href="{% url 'feedback:submit' %}" class="btn btn-primary">{% trans "提交反馈" %}</a>
+                        <h5 class="card-title">{% trans "博客" %}</h5>
+                        <p class="card-text">{% trans "分享你的学习心得和经验" %}</p>
+                        <div class="btn-group">
+                            <a href="{% url 'blog:list' %}" class="btn btn-primary">{% trans "浏览博客" %}</a>
+                            <a href="{% url 'blog:write' %}" class="btn btn-success">{% trans "写博客" %}</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -53,6 +56,21 @@
 .card:hover {
     transform: translateY(-5px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.btn-group {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
 }
 </style>
 {% endblock %}
