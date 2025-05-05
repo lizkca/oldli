@@ -6,6 +6,7 @@
     <div class="jumbotron">
         <h1 class="display-4">{% trans "欢迎来到英语学习平台" %}</h1>
         <p class="lead">{% trans "这是一个帮助你提高英语水平的学习平台" %}</p>
+        <p class="user-stats">{% trans "已有" %} <span class="user-count">{{ user_count }}</span> {% trans "位用户加入我们的学习社区" %}</p>
         <hr class="my-4">
         <div class="row">
             <div class="col-md-4 mb-3">
@@ -71,6 +72,18 @@
 .btn-success:hover {
     background-color: #218838;
     border-color: #1e7e34;
+}
+.user-stats {
+    font-size: 1.2rem;
+    color: #666;
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.user-count {
+    font-weight: bold;
+    color: #28a745;
+    font-size: 1.4rem;
 }
 </style>
 {% endblock %}
