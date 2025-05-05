@@ -21,6 +21,9 @@
                         <span class="badge bg-info">{{ blog.get_language_display }}</span>
                         <small class="text-muted">{{ blog.created_at|date:"Y-m-d H:i" }}</small>
                         <small class="text-muted">{% trans "作者" %}: {{ blog.author.username }}</small>
+                        <button onclick="speakBlogContent(this, '{{ blog.content }}', '{{ blog.language }}')" class="speak-btn">
+                            {% trans "朗读内容" %}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -74,5 +77,75 @@
 .badge {
     padding: 5px 10px;
 }
+
+.speak-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.speak-btn:hover {
+    background: #45a049;
+}
+
+.speak-btn.speaking {
+    background: #f44336;
+}
 </style>
+
+<script>
+let currentUtterance = null;
+
+function speakBlogContent(button, content, language) {
+    // 如果正在朗读，则停止
+    if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+        button.classList.remove('speaking');
+        button.textContent = '{% trans "朗读内容" %}';
+        return;
+    }
+
+    // 处理文本，添加适当的停顿
+    const processedContent = content
+        .replace(/([，。！？；])/g, '$1 , ')
+        .replace(/([,.!?;])/g, '$1 , ')
+        .replace(/([：\:])/g, '$1 . ')
+        .replace(/\n/g, ' . ');
+
+    const utterance = new SpeechSynthesisUtterance(processedContent);
+    utterance.lang = language === 'en' ? 'en-US' : 'zh-CN';
+    utterance.rate = 0.9;
+
+    // 选择合适的语音
+    const voices = window.speechSynthesis.getVoices();
+    for (let voice of voices) {
+        if (voice.lang.startsWith(utterance.lang)) {
+            utterance.voice = voice;
+            break;
+        }
+    }
+
+    // 更新按钮状态
+    button.classList.add('speaking');
+    button.textContent = '{% trans "停止朗读" %}';
+
+    utterance.onend = () => {
+        button.classList.remove('speaking');
+        button.textContent = '{% trans "朗读内容" %}';
+    };
+
+    window.speechSynthesis.speak(utterance);
+    currentUtterance = utterance;
+}
+
+// 确保语音列表加载完成
+window.speechSynthesis.onvoiceschanged = function() {
+    const voices = window.speechSynthesis.getVoices();
+    console.log('可用的语音：', voices);
+};
+</script>
 {% endblock %}
